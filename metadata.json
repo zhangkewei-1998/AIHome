@@ -1,0 +1,6 @@
+{
+  "name": "AI 梦幻家 (AI Dream Home)",
+  "description": "AI-powered home renovation simulator. Upload your room photo, select a style, and see the transformation in seconds.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["image_processing", "vision_ai"]
+}

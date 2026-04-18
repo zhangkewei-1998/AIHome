@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", serif;
+  --color-fog-blue: #E2EBF4;
+  --color-sky-blue: #8EACCD;
+  --color-deep-blue: #4A628A;
+  --shadow-sleek: 0 10px 30px rgba(74, 98, 138, 0.08);
+}
+
+@utility no-scrollbar {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+body {
+  @apply antialiased text-deep-blue;
+  overflow-x: hidden;
+}
+
+/* Glassmorphism glass card helper from Sleek theme */
+.glass {
+  @apply bg-white/70 backdrop-blur-md border border-white/50 shadow-sleek;
+}
