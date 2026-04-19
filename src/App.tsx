@@ -9,10 +9,15 @@ import {
   ArrowLeft,
   Download,
   RotateCcw,
-  Plus
+  Plus,
+  Compass,
+  BookOpen,
+  ShoppingBag,
+  ExternalLink,
+  Target
 } from 'lucide-react';
-import { RENOVATION_STYLES, COLORS } from './constants';
-import { AppView, DesignState, RenovationStyle } from './types';
+import { RENOVATION_STYLES, COLORS, DECORATION_ARTICLES, FURNITURE_PRODUCTS } from './constants';
+import { AppView, DesignState, RenovationStyle, Article, Product } from './types';
 import { transformRoom } from './services/geminiService';
 
 export default function App() {
@@ -21,7 +26,9 @@ export default function App() {
     originalImage: null,
     selectedStyle: null,
     resultImage: null,
-    isProcessing: false
+    isProcessing: false,
+    selectedArticle: null,
+    selectedProduct: null
   });
   const [loadingMsg, setLoadingMsg] = useState('制作中...');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -43,6 +50,16 @@ export default function App() {
 
   const handleSelectStyle = (style: RenovationStyle) => {
     setDesignState(prev => ({ ...prev, selectedStyle: style }));
+  };
+
+  const handleSelectArticle = (article: Article) => {
+    setDesignState(prev => ({ ...prev, selectedArticle: article }));
+    setView('article_detail');
+  };
+
+  const handleSelectProduct = (product: Product) => {
+    setDesignState(prev => ({ ...prev, selectedProduct: product }));
+    setView('product_detail');
   };
 
   const handleGenerate = async () => {
@@ -256,6 +273,160 @@ export default function App() {
     </div>
   );
 
+  const ExploreView = () => (
+    <div className="flex flex-col gap-10 p-8 pb-32 min-h-screen">
+      <header className="flex flex-col gap-2">
+        <h2 className="text-3xl font-bold text-deep-blue tracking-tight">发现灵感</h2>
+        <p className="text-sm text-deep-blue/50 font-medium">搜寻 2026 年最前沿的家居设计潮流</p>
+      </header>
+
+      {/* 第一栏：装修资讯 */}
+      <section className="flex flex-col gap-6">
+        <div className="flex items-center gap-2 px-2">
+          <BookOpen className="w-5 h-5 text-sky-blue" />
+          <h3 className="text-xl font-bold text-deep-blue">装修资讯</h3>
+        </div>
+        <div className="flex flex-col gap-4">
+          {DECORATION_ARTICLES.map((article) => (
+            <motion.div 
+              key={article.id}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => handleSelectArticle(article)}
+              className="glass p-4 rounded-[28px] flex gap-4 cursor-pointer hover:border-sky-blue/30 transition-all"
+            >
+              <div className="w-24 h-24 rounded-[20px] overflow-hidden flex-shrink-0">
+                <img src={article.thumbnail} alt={article.title} className="w-full h-full object-cover" />
+              </div>
+              <div className="flex flex-col justify-center gap-1">
+                <span className="text-[10px] font-bold text-sky-blue uppercase tracking-widest">{article.category}</span>
+                <h4 className="text-sm font-bold text-deep-blue leading-tight line-clamp-2">{article.title}</h4>
+                <p className="text-[10px] text-deep-blue/40 mt-1">{article.date}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* 第二栏：推荐好物 */}
+      <section className="flex flex-col gap-6">
+        <div className="flex items-center gap-2 px-2">
+          <ShoppingBag className="w-5 h-5 text-sky-blue" />
+          <h3 className="text-xl font-bold text-deep-blue">好物推荐</h3>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          {FURNITURE_PRODUCTS.map((product) => (
+            <motion.div 
+              key={product.id}
+              whileTap={{ scale: 0.96 }}
+              onClick={() => handleSelectProduct(product)}
+              className="glass p-3 rounded-[32px] flex flex-col gap-3 cursor-pointer"
+            >
+              <div className="aspect-square rounded-[24px] overflow-hidden bg-fog-blue/30">
+                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+              </div>
+              <div className="px-1">
+                <h4 className="text-sm font-bold text-deep-blue truncate">{product.name}</h4>
+                <p className="text-[10px] text-deep-blue/50 font-medium">{product.brand}</p>
+                <div className="flex justify-between items-center mt-2">
+                  <span className="text-sm font-bold text-sky-blue">{product.price}</span>
+                  <Plus className="w-4 h-4 text-deep-blue/30" />
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+
+  const ArticleDetailView = () => (
+    <div className="flex flex-col gap-0 min-h-screen pb-32">
+      <div className="relative h-80 w-full">
+        <img src={designState.selectedArticle?.thumbnail} className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-deep-blue/80 via-transparent to-transparent" />
+        <button 
+          onClick={() => setView('explore')}
+          className="absolute top-8 left-8 p-3 glass rounded-full"
+        >
+          <ArrowLeft className="w-6 h-6 text-deep-blue" />
+        </button>
+        <div className="absolute bottom-8 left-8 right-8">
+          <span className="px-3 py-1 bg-sky-blue text-white text-[10px] font-bold rounded-full uppercase tracking-tighter mb-2 inline-block">
+            {designState.selectedArticle?.category}
+          </span>
+          <h2 className="text-2xl font-bold text-white leading-tight">{designState.selectedArticle?.title}</h2>
+        </div>
+      </div>
+      <div className="p-8 flex flex-col gap-6">
+        <div className="flex items-center gap-3 text-[12px] text-deep-blue/40 font-bold">
+          <span>{designState.selectedArticle?.date}</span>
+          <div className="w-1 h-1 bg-deep-blue/20 rounded-full" />
+          <span>阅读 5.2k+</span>
+        </div>
+        <p className="text-deep-blue/70 leading-relaxed font-medium">
+          {designState.selectedArticle?.content}
+        </p>
+        <div className="h-px bg-deep-blue/10 w-full my-4" />
+        <div className="flex flex-col gap-4">
+          <h4 className="text-lg font-bold text-deep-blue">更多精彩内容</h4>
+          <div className="p-4 rounded-[24px] glass border-sky-blue/10 flex items-center justify-between">
+            <span className="text-sm font-bold text-deep-blue">订阅我们的装修周报</span>
+            <Plus className="text-sky-blue" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const ProductDetailView = () => (
+    <div className="flex flex-col gap-0 min-h-screen pb-32">
+       <div className="bg-white p-8 pb-12 rounded-b-[48px] shadow-xl">
+        <header className="flex justify-between items-center mb-8">
+          <button onClick={() => setView('explore')} className="p-3 glass rounded-full">
+            <ArrowLeft className="w-6 h-6 text-deep-blue" />
+          </button>
+          <button className="p-3 glass rounded-full">
+            <ExternalLink className="w-6 h-6 text-deep-blue" />
+          </button>
+        </header>
+        <div className="aspect-square w-full max-w-sm mx-auto rounded-[40px] overflow-hidden bg-fog-blue/20">
+          <img src={designState.selectedProduct?.image} className="w-full h-full object-contain" />
+        </div>
+      </div>
+
+      <div className="p-8 flex flex-col gap-8">
+        <div>
+          <div className="flex justify-between items-start mb-2">
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-sky-blue">{designState.selectedProduct?.brand}</span>
+              <h2 className="text-3xl font-bold text-deep-blue">{designState.selectedProduct?.name}</h2>
+            </div>
+            <span className="text-2xl font-bold text-deep-blue">{designState.selectedProduct?.price}</span>
+          </div>
+          <p className="text-deep-blue/60 font-medium leading-relaxed mt-4">
+            {designState.selectedProduct?.description}
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-4">
+           <h3 className="text-lg font-bold text-deep-blue">规格详情</h3>
+           <div className="grid grid-cols-1 gap-3">
+             {designState.selectedProduct?.specs.map((spec, i) => (
+               <div key={i} className="flex items-center gap-3 p-4 glass rounded-[20px]">
+                 <div className="w-2 h-2 rounded-full bg-sky-blue" />
+                 <span className="text-sm font-bold text-deep-blue/80">{spec}</span>
+               </div>
+             ))}
+           </div>
+        </div>
+
+        <button className="w-full py-5 bg-deep-blue text-white rounded-full font-bold text-lg shadow-2xl flex items-center justify-center gap-3 active:scale-95 transition-transform mt-4">
+          <ShoppingBag className="w-6 h-6" /> 立即咨询购买
+        </button>
+      </div>
+    </div>
+  );
+
   const PreviewView = () => {
     const [sliderPos, setSliderPos] = useState(50);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -340,8 +511,8 @@ export default function App() {
           <Sparkles className="w-5 h-5" />
           <span className="text-[10px] font-bold">设计</span>
         </button>
-        <button onClick={() => setView('home')} className={`flex flex-col items-center gap-1 transition-all text-deep-blue opacity-50`}>
-          <ChevronRight className="w-5 h-5 -rotate-90" />
+        <button onClick={() => setView('explore')} className={`flex flex-col items-center gap-1 transition-all ${view === 'explore' || view === 'article_detail' || view === 'product_detail' ? 'text-sky-blue opacity-100 scale-110' : 'text-deep-blue opacity-50'}`}>
+          <Compass className="w-5 h-5" />
           <span className="text-[10px] font-bold">探索</span>
         </button>
         <button onClick={() => setView('profile')} className={`flex flex-col items-center gap-1 transition-all ${view === 'profile' ? 'text-sky-blue opacity-100 scale-110' : 'text-deep-blue opacity-50'}`}>
@@ -369,7 +540,10 @@ export default function App() {
             {view === 'style' && <StyleSelectView />}
             {view === 'generating' && <GeneratingView />}
             {view === 'preview' && <PreviewView />}
-            {view === 'profile' && <div className="p-24 text-center text-slate-400">个人中心及收藏功能正在开发中...</div>}
+            {view === 'explore' && <ExploreView />}
+            {view === 'article_detail' && <ArticleDetailView />}
+            {view === 'product_detail' && <ProductDetailView />}
+            {view === 'profile' && <div className="p-24 pb-48 text-center text-slate-400">个人中心及收藏功能正在开发中...</div>}
           </motion.div>
         </AnimatePresence>
         
